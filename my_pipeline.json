@@ -1,0 +1,9 @@
+{
+	"pipelineName": "@{pipeline().parameters.pipelineName}",
+	"dataFactoryName": "@{pipeline().parameters.dataFactoryName}",
+	"pipelineRunId": "@{pipeline().parameters.pipelineRunId}",
+	"pipelineErrorMessage":"@{pipeline().parameters.pipelineErrorMessage}",
+	"receiver":"@{pipeline().parameters.receiver}"
+}
+
+
