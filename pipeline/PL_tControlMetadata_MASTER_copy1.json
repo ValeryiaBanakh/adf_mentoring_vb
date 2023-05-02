@@ -1,0 +1,176 @@
+{
+	"name": "PL_tControlMetadata_MASTER_copy1",
+	"properties": {
+		"activities": [
+			{
+				"name": "ACT_GEN_META_FunctionalPurpose",
+				"type": "GetMetadata",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"dataset": {
+						"referenceName": "DS_ADLS__2",
+						"type": "DatasetReference",
+						"parameters": {
+							"TargetFilename": "*.csv"
+						}
+					},
+					"fieldList": [
+						"childItems"
+					],
+					"storeSettings": {
+						"type": "AzureBlobFSReadSettings",
+						"recursive": true,
+						"enablePartitionDiscovery": false
+					},
+					"formatSettings": {
+						"type": "DelimitedTextReadSettings"
+					}
+				}
+			},
+			{
+				"name": "ACT_ITRC_FOR_FunctionalPurpose",
+				"type": "ForEach",
+				"dependsOn": [
+					{
+						"activity": "TruncateTables",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"items": {
+						"value": "@activity('Lookup_META').output.value",
+						"type": "Expression"
+					},
+					"isSequential": false,
+					"activities": [
+						{
+							"name": "Execute Pipeline",
+							"type": "ExecutePipeline",
+							"dependsOn": [],
+							"userProperties": [],
+							"typeProperties": {
+								"pipeline": {
+									"referenceName": "PL_COPY_DATA_tControlMetadata",
+									"type": "PipelineReference"
+								},
+								"waitOnCompletion": true,
+								"parameters": {
+									"SourcePath": {
+										"value": "@item().SourcePath",
+										"type": "Expression"
+									},
+									"ColumnDelimiter": {
+										"value": "@item().ColumnDelimiter",
+										"type": "Expression"
+									},
+									"Encoding": {
+										"value": "@item().Encoding",
+										"type": "Expression"
+									},
+									"EscapeCharacter": {
+										"value": "@item().EscapeCharacter",
+										"type": "Expression"
+									},
+									"QuoteCharacter": {
+										"value": "@item().QuoteCharacter",
+										"type": "Expression"
+									},
+									"DestinationSchema": {
+										"value": "@item().DestinationSchema",
+										"type": "Expression"
+									},
+									"DestinationTable": {
+										"value": "@item().DestinationTable",
+										"type": "Expression"
+									},
+									"DIUValue": {
+										"value": "@item().DIUValue",
+										"type": "Expression"
+									},
+									"Mapping": {
+										"value": "@item().Mapping",
+										"type": "Expression"
+									}
+								}
+							}
+						}
+					]
+				}
+			},
+			{
+				"name": "Lookup_META",
+				"type": "Lookup",
+				"dependsOn": [
+					{
+						"activity": "ACT_GEN_META_FunctionalPurpose",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "AzureSqlSource",
+						"sqlReaderQuery": "  Select  top 1 *\n from etl.tControlMetadata \n",
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"dataset": {
+						"referenceName": "AzureSqlTable1",
+						"type": "DatasetReference"
+					},
+					"firstRowOnly": false
+				}
+			},
+			{
+				"name": "TruncateTables",
+				"type": "SqlServerStoredProcedure",
+				"dependsOn": [
+					{
+						"activity": "Lookup_META",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"storedProcedureName": "[dbo].[TruncateTables]"
+				},
+				"linkedServiceName": {
+					"referenceName": "LS_ASQL_MOD_5",
+					"type": "LinkedServiceReference"
+				}
+			}
+		],
+		"annotations": [],
+		"lastPublishTime": "2023-04-19T17:58:06Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

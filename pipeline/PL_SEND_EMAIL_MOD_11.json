@@ -1,0 +1,106 @@
+{
+	"name": "PL_SEND_EMAIL_MOD_11",
+	"properties": {
+		"activities": [
+			{
+				"name": "ACT_GEN_WEB_Post_mail",
+				"type": "WebActivity",
+				"dependsOn": [
+					{
+						"activity": "ACT_GEN_WEB_Get_Secret",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"url": {
+						"value": "@activity('ACT_GEN_WEB_Get_Secret').output.value",
+						"type": "Expression"
+					},
+					"connectVia": {
+						"referenceName": "Azure-IR-M8",
+						"type": "IntegrationRuntimeReference"
+					},
+					"method": "POST",
+					"body": {
+						"value": "{\n\t\"pipelineName\": \"@{pipeline().Pipeline}\",\n\t\"dataFactoryName\": \"@{pipeline().DataFactory}\",\n\t\"pipelineRunId\": \"@{pipeline().RunId}\",\n\t\"receiver\": \"@{pipeline().parameters.receiver}\",\n\t\"pipelineErrorMessage\":\"@{pipeline().parameters.pipelineErrorMessage}\",\n\t\"Status\": \"@{pipeline().parameters.Status}\"\n}\n",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "ACT_GEN_WEB_Get_Secret",
+				"type": "WebActivity",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": true,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"url": "https://mentoring-key-vault-vb.vault.azure.net/secrets/module11adf/805a410fb52543a389533ed578af05f1?api-version=7.0",
+					"method": "GET",
+					"authentication": {
+						"type": "MSI",
+						"resource": "https://vault.azure.net"
+					}
+				}
+			}
+		],
+		"parameters": {
+			"pipelineName": {
+				"type": "string",
+				"defaultValue": "@pipeline().Pipeline"
+			},
+			"dataFactoryName": {
+				"type": "string",
+				"defaultValue": "@pipeline().DataFactoryName"
+			},
+			"pipelineRunId": {
+				"type": "string",
+				"defaultValue": "@pipeline().RunId"
+			},
+			"pipelineErrorMessage": {
+				"type": "string",
+				"defaultValue": "@pipeline().Error.Message"
+			},
+			"receiver": {
+				"type": "string",
+				"defaultValue": "valeryia_banakh@epam.com"
+			},
+			"emailSubject": {
+				"type": "string"
+			},
+			"emailBody": {
+				"type": "string"
+			},
+			"Status": {
+				"type": "string",
+				"defaultValue": "@{pipeline().parameters.Status}"
+			}
+		},
+		"variables": {
+			"pipelineName": {
+				"type": "String"
+			},
+			"dataFactoryName": {
+				"type": "String"
+			}
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-05-02T12:08:55Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

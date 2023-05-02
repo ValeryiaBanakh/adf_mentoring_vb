@@ -1,0 +1,6 @@
+{
+	"name": "IntegrationRuntimeSQLDB",
+	"properties": {
+		"type": "SelfHosted"
+	}
+}

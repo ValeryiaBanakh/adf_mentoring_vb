@@ -1,0 +1,90 @@
+{
+	"name": "pipeline2",
+	"properties": {
+		"activities": [
+			{
+				"name": "Copy data1",
+				"type": "Copy",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "DelimitedTextSource",
+						"additionalColumns": [
+							{
+								"name": "pipelineId",
+								"value": {
+									"value": "@pipeline().RunId",
+									"type": "Expression"
+								}
+							},
+							{
+								"name": "source_filename",
+								"value": "$$FILEPATH"
+							}
+						],
+						"storeSettings": {
+							"type": "AzureBlobFSReadSettings",
+							"recursive": true,
+							"enablePartitionDiscovery": false
+						},
+						"formatSettings": {
+							"type": "DelimitedTextReadSettings"
+						}
+					},
+					"sink": {
+						"type": "AzureSqlSink",
+						"preCopyScript": "  truncate table [stg].[credits]\n  truncate table [stg].[ratings]\n  truncate table [stg].[movies_metadata]",
+						"writeBehavior": "insert",
+						"sqlWriterUseTableLock": false,
+						"disableMetricsCollection": false
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"typeConversion": true,
+						"typeConversionSettings": {
+							"allowDataTruncation": true,
+							"treatBooleanAsNumber": false
+						}
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "AzureLake_mod_9",
+						"type": "DatasetReference",
+						"parameters": {
+							"SourcePath": "credits.csv",
+							"ColumnDelimiter": ",",
+							"Encoding": "UTF-8",
+							"EscapeCharacter": "\"",
+							"QuoteCharacter": "\""
+						}
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "AzureSqlTable_mod_9",
+						"type": "DatasetReference",
+						"parameters": {
+							"DestinationSchema": "stg",
+							"DestinationTable": "credits",
+							"DIUValue": "DUI",
+							"Mapping": "[cast]=[cast],[crew]=[crew],[id]=[id]"
+						}
+					}
+				]
+			}
+		],
+		"annotations": [],
+		"lastPublishTime": "2023-04-27T13:36:49Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

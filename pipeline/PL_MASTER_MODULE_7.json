@@ -1,0 +1,63 @@
+{
+	"name": "PL_MASTER_MODULE_7",
+	"properties": {
+		"activities": [
+			{
+				"name": "IMP_LOAD_FILES_STG",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "IMP_BLOB_DATALAKE",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "PL_ONLINE_PURCHASE_MOD_7",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "ARCHIVE",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "IMP_LOAD_FILES_STG",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "PL_ARCH_DLAKE_DLAKE_MOD_7",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "IMP_BLOB_DATALAKE",
+				"type": "ExecutePipeline",
+				"dependsOn": [],
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "PL_INCR_FILE_MOD_7",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			}
+		],
+		"annotations": [],
+		"lastPublishTime": "2023-03-28T08:06:47Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

@@ -1,0 +1,153 @@
+{
+	"name": "PL_SEND_EMAIL_MOD_11_failed",
+	"properties": {
+		"activities": [
+			{
+				"name": "ACT_GEN_WEB_Post_mail",
+				"type": "WebActivity",
+				"dependsOn": [
+					{
+						"activity": "ACT_GEN_WEB_Get_Secret",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"url": {
+						"value": "@activity('ACT_GEN_WEB_Get_Secret').output.value",
+						"type": "Expression"
+					},
+					"connectVia": {
+						"referenceName": "Azure-IR-M8",
+						"type": "IntegrationRuntimeReference"
+					},
+					"method": "POST",
+					"body": {
+						"value": "{\n\t\"pipelineName\": \"@{pipeline().Pipeline}\",\n\t\"dataFactoryName\": \"@{pipeline().DataFactory}\",\n\t\"pipelineRunId\": \"@{pipeline().RunId}\",\n\t\"receiver\": \"@{pipeline().parameters.receiver}\",\n\t\"pipelineErrorMessage\":\"@{activity('test_failed').output.errors[0].Message}\",\n\t\"Status\":  \"@{activity('test_failed').output.executionDetails[0].status}\"\n}\n\n",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "ACT_GEN_WEB_Get_Secret",
+				"type": "WebActivity",
+				"dependsOn": [
+					{
+						"activity": "test_failed",
+						"dependencyConditions": [
+							"Failed"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": true,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"url": "https://mentoring-key-vault-vb.vault.azure.net/secrets/module11adf/805a410fb52543a389533ed578af05f1?api-version=7.0",
+					"method": "GET",
+					"authentication": {
+						"type": "MSI",
+						"resource": "https://vault.azure.net"
+					}
+				}
+			},
+			{
+				"name": "test_failed",
+				"type": "Copy",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "DelimitedTextSource",
+						"storeSettings": {
+							"type": "AzureBlobFSReadSettings",
+							"recursive": true,
+							"enablePartitionDiscovery": false
+						},
+						"formatSettings": {
+							"type": "DelimitedTextReadSettings"
+						}
+					},
+					"sink": {
+						"type": "SqlServerSink",
+						"writeBehavior": "insert",
+						"sqlWriterUseTableLock": false
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"typeConversion": true,
+						"typeConversionSettings": {
+							"allowDataTruncation": true,
+							"treatBooleanAsNumber": false
+						}
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "DelimitedText3",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "SqlServerTable_tickets",
+						"type": "DatasetReference"
+					}
+				]
+			}
+		],
+		"parameters": {
+			"pipelineName": {
+				"type": "string",
+				"defaultValue": " "
+			},
+			"dataFactoryName": {
+				"type": "string"
+			},
+			"pipelineRunId": {
+				"type": "string"
+			},
+			"pipelineErrorMessage": {
+				"type": "string"
+			},
+			"receiver": {
+				"type": "string",
+				"defaultValue": "valeryia_banakh@epam.com"
+			},
+			"emailSubject": {
+				"type": "string"
+			},
+			"emailBody": {
+				"type": "string"
+			},
+			"Status": {
+				"type": "string"
+			}
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-05-02T12:36:50Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

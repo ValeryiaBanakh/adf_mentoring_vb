@@ -1,0 +1,27 @@
+{
+	"name": "spLoad",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "AzureBlobStoragenew",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "Json",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobStorageLocation",
+				"fileName": "spLoad.json",
+				"container": "movies"
+			}
+		},
+		"schema": {
+			"type": "object",
+			"properties": {
+				"ProcedureName": {
+					"type": "string"
+				}
+			}
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}
