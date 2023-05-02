@@ -1,0 +1,187 @@
+{
+	"name": "PL_COPY_DATA_tControlMetadata_copy1",
+	"properties": {
+		"activities": [
+			{
+				"name": "COPY_DATA_FROMLAKETOSQL",
+				"type": "Copy",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "DelimitedTextSource",
+						"additionalColumns": [
+							{
+								"name": "pipelineId",
+								"value": {
+									"value": "@pipeline().RunId",
+									"type": "Expression"
+								}
+							},
+							{
+								"name": "source_filename",
+								"value": "$$FILEPATH"
+							}
+						],
+						"storeSettings": {
+							"type": "AzureBlobFSReadSettings",
+							"recursive": false,
+							"wildcardFolderPath": "metadata-driven",
+							"wildcardFileName": {
+								"value": "@pipeline().parameters.SourcePath",
+								"type": "Expression"
+							},
+							"enablePartitionDiscovery": false
+						},
+						"formatSettings": {
+							"type": "DelimitedTextReadSettings"
+						}
+					},
+					"sink": {
+						"type": "AzureSqlSink",
+						"preCopyScript": {
+							"value": "TRUNCATE TABLE @{pipeline().parameters.DestinationSchema}.@{pipeline().parameters.DestinationTable};\n\nselect 1",
+							"type": "Expression"
+						},
+						"writeBehavior": "insert",
+						"sqlWriterUseTableLock": true,
+						"disableMetricsCollection": false
+					},
+					"enableStaging": false,
+					"dataIntegrationUnits": 4,
+					"translator": {
+						"type": "TabularTranslator",
+						"typeConversion": true,
+						"typeConversionSettings": {
+							"allowDataTruncation": true,
+							"treatBooleanAsNumber": false
+						}
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "AzureLake_mod_9",
+						"type": "DatasetReference",
+						"parameters": {
+							"SourcePath": "@pipeline().parameters.SourcePath",
+							"ColumnDelimiter": "@pipeline().parameters.ColumnDelimiter",
+							"Encoding": "@pipeline().parameters.Encoding",
+							"EscapeCharacter": "@pipeline().parameters.EscapeCharacter",
+							"QuoteCharacter": "@pipeline().parameters.QuoteCharacter"
+						}
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "AzureSqlTable_mod_9",
+						"type": "DatasetReference",
+						"parameters": {
+							"DestinationSchema": "@pipeline().parameters.DestinationSchema",
+							"DestinationTable": "@pipeline().parameters.DestinationTable",
+							"DIUValue": "@pipeline().parameters.DIUValue",
+							"Mapping": "@pipeline().parameters.Mapping"
+						}
+					}
+				]
+			},
+			{
+				"name": "ACT_GEN_WEB_Get_Secret",
+				"type": "WebActivity",
+				"dependsOn": [
+					{
+						"activity": "COPY_DATA_FROMLAKETOSQL",
+						"dependencyConditions": [
+							"Failed"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"url": "https://mentoring-key-vault-vb.vault.azure.net/secrets/module11adf/805a410fb52543a389533ed578af05f1?api-version=7.0",
+					"method": "GET",
+					"authentication": {
+						"type": "MSI",
+						"resource": "https://vault.azure.net"
+					}
+				}
+			},
+			{
+				"name": "ACT_GEN_WEB_Post_mail",
+				"type": "WebActivity",
+				"dependsOn": [
+					{
+						"activity": "ACT_GEN_WEB_Get_Secret",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"url": {
+						"value": "@activity('ACT_GEN_WEB_Get_Secret').output.value",
+						"type": "Expression"
+					},
+					"method": "POST",
+					"body": {
+						"value": "{\n    \"pipelineName\": \"pipeline().Pipeline\",\n\t\"dataFactoryName\": \"pipeline().DataFactory}\",\n    \"pipelineRunId\": \"pipeline().RunId\",\n    \"pipelineErrorMessage\": \"activity('Error').output\"\n   \n    \n}\n\n\n\n\n",
+						"type": "Expression"
+					}
+				}
+			}
+		],
+		"parameters": {
+			"SourcePath": {
+				"type": "string"
+			},
+			"ColumnDelimiter": {
+				"type": "string"
+			},
+			"Encoding": {
+				"type": "string"
+			},
+			"EscapeCharacter": {
+				"type": "string"
+			},
+			"QuoteCharacter": {
+				"type": "string"
+			},
+			"DestinationSchema": {
+				"type": "string"
+			},
+			"DestinationTable": {
+				"type": "string"
+			},
+			"DIUValue": {
+				"type": "string"
+			},
+			"Mapping": {
+				"type": "string"
+			}
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-04-27T13:32:34Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

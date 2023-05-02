@@ -1,0 +1,347 @@
+{
+	"name": "PL_COPY_DATA_tControlMetadata",
+	"properties": {
+		"activities": [
+			{
+				"name": "COPY_DATA_FROMLAKETOSQL",
+				"type": "Copy",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "DelimitedTextSource",
+						"additionalColumns": [
+							{
+								"name": "pipelineId",
+								"value": {
+									"value": "@pipeline().RunId",
+									"type": "Expression"
+								}
+							},
+							{
+								"name": "source_filename",
+								"value": "$$FILEPATH"
+							}
+						],
+						"storeSettings": {
+							"type": "AzureBlobFSReadSettings",
+							"recursive": false,
+							"wildcardFolderPath": "metadata-driven",
+							"wildcardFileName": {
+								"value": "@pipeline().parameters.SourcePath",
+								"type": "Expression"
+							},
+							"enablePartitionDiscovery": false
+						},
+						"formatSettings": {
+							"type": "DelimitedTextReadSettings"
+						}
+					},
+					"sink": {
+						"type": "AzureSqlSink",
+						"preCopyScript": {
+							"value": "TRUNCATE TABLE @{pipeline().parameters.DestinationSchema}.@{pipeline().parameters.DestinationTable};\n\nselect 1",
+							"type": "Expression"
+						},
+						"writeBehavior": "insert",
+						"sqlWriterUseTableLock": true,
+						"disableMetricsCollection": false
+					},
+					"enableStaging": false,
+					"dataIntegrationUnits": 4,
+					"translator": {
+						"type": "TabularTranslator",
+						"typeConversion": true,
+						"typeConversionSettings": {
+							"allowDataTruncation": true,
+							"treatBooleanAsNumber": false
+						}
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "AzureLake_mod_9",
+						"type": "DatasetReference",
+						"parameters": {
+							"SourcePath": "@pipeline().parameters.SourcePath",
+							"ColumnDelimiter": "@pipeline().parameters.ColumnDelimiter",
+							"Encoding": "@pipeline().parameters.Encoding",
+							"EscapeCharacter": "@pipeline().parameters.EscapeCharacter",
+							"QuoteCharacter": "@pipeline().parameters.QuoteCharacter"
+						}
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "AzureSqlTable_mod_9",
+						"type": "DatasetReference",
+						"parameters": {
+							"DestinationSchema": "@pipeline().parameters.DestinationSchema",
+							"DestinationTable": "@pipeline().parameters.DestinationTable",
+							"DIUValue": "@pipeline().parameters.DIUValue",
+							"Mapping": "@pipeline().parameters.Mapping"
+						}
+					}
+				]
+			},
+			{
+				"name": "Logging",
+				"type": "SqlServerStoredProcedure",
+				"dependsOn": [
+					{
+						"activity": "COPY_DATA_FROMLAKETOSQL",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"storedProcedureName": "[etl].[InsertLogDataIntoLogTable]",
+					"storedProcedureParameters": {
+						"DIU": {
+							"value": {
+								"value": "@activity('COPY_DATA_FROMLAKETOSQL').output.usedDataIntegrationUnits",
+								"type": "Expression"
+							},
+							"type": "Int32"
+						},
+						"MeterType": {
+							"value": {
+								"value": "@activity('COPY_DATA_FROMLAKETOSQL').output.billingReference.billableDuration[0].meterType",
+								"type": "Expression"
+							},
+							"type": "String"
+						},
+						"NumCopied": {
+							"value": {
+								"value": "@activity('COPY_DATA_FROMLAKETOSQL').output.rowsCopied",
+								"type": "Expression"
+							},
+							"type": "Int32"
+						},
+						"NumProcessed": {
+							"value": {
+								"value": "@activity('COPY_DATA_FROMLAKETOSQL').output.filesRead",
+								"type": "Expression"
+							},
+							"type": "Int32"
+						},
+						"NumRead": {
+							"value": {
+								"value": "@activity('COPY_DATA_FROMLAKETOSQL').output.rowsRead",
+								"type": "Expression"
+							},
+							"type": "Int32"
+						},
+						"ParallelCopies": {
+							"value": {
+								"value": "@activity('COPY_DATA_FROMLAKETOSQL').output.usedParallelCopies",
+								"type": "Expression"
+							},
+							"type": "Int32"
+						},
+						"PipelineName": {
+							"value": {
+								"value": "@pipeline().Pipeline",
+								"type": "Expression"
+							},
+							"type": "String"
+						},
+						"QueueDuration": {
+							"value": {
+								"value": "@activity('COPY_DATA_FROMLAKETOSQL').output.executionDetails[0].profile.queue.duration",
+								"type": "Expression"
+							},
+							"type": "Int32"
+						},
+						"RunId": {
+							"value": {
+								"value": "@pipeline().RunId",
+								"type": "Expression"
+							},
+							"type": "Guid"
+						},
+						"Status": {
+							"value": {
+								"value": "@activity('COPY_DATA_FROMLAKETOSQL').output.executionDetails[0].profile.transfer.status",
+								"type": "Expression"
+							},
+							"type": "String"
+						},
+						"TransferDuration": {
+							"value": {
+								"value": "@activity('COPY_DATA_FROMLAKETOSQL').output.executionDetails[0].profile.transfer.duration",
+								"type": "Expression"
+							},
+							"type": "Int32"
+						},
+						"Unit": {
+							"value": {
+								"value": "@activity('COPY_DATA_FROMLAKETOSQL').output.billingReference.billableDuration[0].unit",
+								"type": "Expression"
+							},
+							"type": "String"
+						},
+						"EndTime": {
+							"value": {
+								"value": "@addSeconds(pipeline().TriggerTime,\nadd(add(activity('COPY_DATA_FROMLAKETOSQL').output.executionDetails[0].profile.transfer.duration, activity('COPY_DATA_FROMLAKETOSQL').output.copyDuration), activity('COPY_DATA_FROMLAKETOSQL').output.executionDetails[0].profile.queue.duration) \n, 'dd-MMM-yyyy HH:mm:ss.fff')",
+								"type": "Expression"
+							},
+							"type": "Datetime"
+						},
+						"StartTime": {
+							"value": {
+								"value": "@pipeline().TriggerTime",
+								"type": "Expression"
+							},
+							"type": "Datetime"
+						},
+						"Duration": {
+							"value": {
+								"value": "@activity('COPY_DATA_FROMLAKETOSQL').output.billingReference.billableDuration[0].duration",
+								"type": "Expression"
+							},
+							"type": "Decimal"
+						},
+						"copyDuration": {
+							"value": {
+								"value": "@add(add(activity('COPY_DATA_FROMLAKETOSQL').output.executionDetails[0].profile.transfer.duration, activity('COPY_DATA_FROMLAKETOSQL').output.copyDuration), activity('COPY_DATA_FROMLAKETOSQL').output.executionDetails[0].profile.queue.duration)",
+								"type": "Expression"
+							},
+							"type": "Int32"
+						}
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "LS_ASQL_MOD_5",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "Error",
+				"type": "SqlServerStoredProcedure",
+				"dependsOn": [
+					{
+						"activity": "COPY_DATA_FROMLAKETOSQL",
+						"dependencyConditions": [
+							"Failed"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"storedProcedureName": "[etl].[Insert_Pipeline_Error_Details]",
+					"storedProcedureParameters": {
+						"Activity_Name": {
+							"value": {
+								"value": "@activity('COPY_DATA_FROMLAKETOSQL').output.billingReference.activityType",
+								"type": "Expression"
+							},
+							"type": "String"
+						},
+						"Datetime": {
+							"value": {
+								"value": "@pipeline().TriggerTime",
+								"type": "Expression"
+							},
+							"type": "DateTime"
+						},
+						"Error_Code": {
+							"value": {
+								"value": "@activity('COPY_DATA_FROMLAKETOSQL').output.errors[0].Code",
+								"type": "Expression"
+							},
+							"type": "String"
+						},
+						"Error_Message": {
+							"value": {
+								"value": "@activity('COPY_DATA_FROMLAKETOSQL').output.errors[0].Message",
+								"type": "Expression"
+							},
+							"type": "String"
+						},
+						"Failure_Type": {
+							"value": {
+								"value": "@activity('COPY_DATA_FROMLAKETOSQL').output.errors[0].EventType",
+								"type": "Expression"
+							},
+							"type": "String"
+						},
+						"Pipeline_Name": {
+							"value": {
+								"value": "@pipeline().Pipeline",
+								"type": "Expression"
+							},
+							"type": "String"
+						},
+						"Run_ID": {
+							"value": {
+								"value": "@pipeline().RunId",
+								"type": "Expression"
+							},
+							"type": "String"
+						}
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "LS_ASQL_MOD_5",
+					"type": "LinkedServiceReference"
+				}
+			}
+		],
+		"parameters": {
+			"SourcePath": {
+				"type": "string"
+			},
+			"ColumnDelimiter": {
+				"type": "string"
+			},
+			"Encoding": {
+				"type": "string"
+			},
+			"EscapeCharacter": {
+				"type": "string"
+			},
+			"QuoteCharacter": {
+				"type": "string"
+			},
+			"DestinationSchema": {
+				"type": "string"
+			},
+			"DestinationTable": {
+				"type": "string"
+			},
+			"DIUValue": {
+				"type": "string"
+			},
+			"Mapping": {
+				"type": "string"
+			}
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-04-27T13:36:49Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

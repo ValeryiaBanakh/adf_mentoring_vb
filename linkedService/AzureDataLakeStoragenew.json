@@ -1,0 +1,11 @@
+{
+	"name": "AzureDataLakeStoragenew",
+	"type": "Microsoft.DataFactory/factories/linkedservices",
+	"properties": {
+		"annotations": [],
+		"type": "AzureBlobFS",
+		"typeProperties": {
+			"url": "https://azurementoringdatalakevb.dfs.core.windows.net"
+		}
+	}
+}

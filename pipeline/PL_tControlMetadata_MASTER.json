@@ -1,0 +1,317 @@
+{
+	"name": "PL_tControlMetadata_MASTER",
+	"properties": {
+		"activities": [
+			{
+				"name": "ACT_GEN_META_FunctionalPurpose",
+				"type": "GetMetadata",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"dataset": {
+						"referenceName": "DS_ADLS__2",
+						"type": "DatasetReference",
+						"parameters": {
+							"TargetFilename": "*.csv"
+						}
+					},
+					"fieldList": [
+						"childItems"
+					],
+					"storeSettings": {
+						"type": "AzureBlobFSReadSettings",
+						"recursive": true,
+						"enablePartitionDiscovery": false
+					},
+					"formatSettings": {
+						"type": "DelimitedTextReadSettings"
+					}
+				}
+			},
+			{
+				"name": "ACT_ITRC_FOR_FunctionalPurpose",
+				"type": "ForEach",
+				"dependsOn": [
+					{
+						"activity": "TruncateTables",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"items": {
+						"value": "@activity('Lookup_META').output.value",
+						"type": "Expression"
+					},
+					"isSequential": false,
+					"activities": [
+						{
+							"name": "Execute Pipeline",
+							"type": "ExecutePipeline",
+							"dependsOn": [],
+							"userProperties": [],
+							"typeProperties": {
+								"pipeline": {
+									"referenceName": "PL_COPY_DATA_tControlMetadata",
+									"type": "PipelineReference"
+								},
+								"waitOnCompletion": true,
+								"parameters": {
+									"SourcePath": {
+										"value": "@item().SourcePath",
+										"type": "Expression"
+									},
+									"ColumnDelimiter": {
+										"value": "@item().ColumnDelimiter",
+										"type": "Expression"
+									},
+									"Encoding": {
+										"value": "@item().Encoding",
+										"type": "Expression"
+									},
+									"EscapeCharacter": {
+										"value": "@item().EscapeCharacter",
+										"type": "Expression"
+									},
+									"QuoteCharacter": {
+										"value": "@item().QuoteCharacter",
+										"type": "Expression"
+									},
+									"DestinationSchema": {
+										"value": "@item().DestinationSchema",
+										"type": "Expression"
+									},
+									"DestinationTable": {
+										"value": "@item().DestinationTable",
+										"type": "Expression"
+									},
+									"DIUValue": {
+										"value": "@item().DIUValue",
+										"type": "Expression"
+									},
+									"Mapping": {
+										"value": "@item().Mapping",
+										"type": "Expression"
+									}
+								}
+							}
+						}
+					]
+				}
+			},
+			{
+				"name": "Lookup_META",
+				"type": "Lookup",
+				"dependsOn": [
+					{
+						"activity": "ACT_GEN_META_FunctionalPurpose",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "AzureSqlSource",
+						"sqlReaderQuery": "  Select  *\n from etl.tControlMetadata \n",
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"dataset": {
+						"referenceName": "AzureSqlTable1",
+						"type": "DatasetReference"
+					},
+					"firstRowOnly": false
+				}
+			},
+			{
+				"name": "TruncateTables",
+				"type": "SqlServerStoredProcedure",
+				"dependsOn": [
+					{
+						"activity": "Lookup_META",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"storedProcedureName": "[dbo].[TruncateTables]"
+				},
+				"linkedServiceName": {
+					"referenceName": "LS_ASQL_MOD_5",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "Stored procedure1",
+				"type": "SqlServerStoredProcedure",
+				"dependsOn": [
+					{
+						"activity": "ACT_ITRC_FOR_FunctionalPurpose",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"storedProcedureName": "[etl].[InsertLogDataIntoLogTable]",
+					"storedProcedureParameters": {
+						"CopyDuration": {
+							"value": {
+								"value": "@activity('Execute Pipeline').output.copyDuration",
+								"type": "Expression"
+							},
+							"type": "Int32"
+						},
+						"DIU": {
+							"value": {
+								"value": "@activity('Execute Pipeline').output.usedDataIntegrationUnits",
+								"type": "Expression"
+							},
+							"type": "Int32"
+						},
+						"Duration": {
+							"value": {
+								"value": "@activity('Execute Pipeline').output.billingReference.billableDuration[0].duration",
+								"type": "Expression"
+							},
+							"type": "Int32"
+						},
+						"EndTime": {
+							"value": {
+								"value": "@activity('Execute Pipeline').output.executionDetails.start",
+								"type": "Expression"
+							},
+							"type": "DateTime"
+						},
+						"MeterType": {
+							"value": {
+								"value": "@activity('Execute Pipeline').output.billingReference.billableDuration[0].meterType",
+								"type": "Expression"
+							},
+							"type": "String"
+						},
+						"NumCopied": {
+							"value": {
+								"value": "@activity('Execute Pipeline').output.rowsCopied",
+								"type": "Expression"
+							},
+							"type": "Int32"
+						},
+						"NumProcessed": {
+							"value": {
+								"value": "@activity('Execute Pipeline').output.filesRead",
+								"type": "Expression"
+							},
+							"type": "Int32"
+						},
+						"NumRead": {
+							"value": {
+								"value": "@activity('Execute Pipeline').output.rowsRead",
+								"type": "Expression"
+							},
+							"type": "Int32"
+						},
+						"ParallelCopies": {
+							"value": {
+								"value": "@activity('Execute Pipeline').output.usedParallelCopies",
+								"type": "Expression"
+							},
+							"type": "Int32"
+						},
+						"PipelineName": {
+							"value": {
+								"value": "@pipeline().Pipeline",
+								"type": "Expression"
+							},
+							"type": "String"
+						},
+						"QueueDuration": {
+							"value": {
+								"value": "@activity('Execute Pipeline').output.executionDetails[0].profile.queue.duration",
+								"type": "Expression"
+							},
+							"type": "Int32"
+						},
+						"RunId": {
+							"value": {
+								"value": "@pipeline().RunId",
+								"type": "Expression"
+							},
+							"type": "Guid"
+						},
+						"StartTime": {
+							"value": {
+								"value": "@activity('Execute Pipeline').output.executionDetails.start",
+								"type": "Expression"
+							},
+							"type": "DateTime"
+						},
+						"Status": {
+							"value": {
+								"value": "@activity('Execute Pipeline').output.executionDetails[0].profile.transfer.status",
+								"type": "Expression"
+							},
+							"type": "String"
+						},
+						"TransferDuration": {
+							"value": {
+								"value": "@activity('Execute Pipeline').output.executionDetails[0].profile.transfer.duration",
+								"type": "Expression"
+							},
+							"type": "Int32"
+						},
+						"Unit": {
+							"value": {
+								"value": "@activity('Execute Pipeline').output.billingReference.billableDuration[0].unit",
+								"type": "Expression"
+							},
+							"type": "String"
+						}
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "LS_ASQL_MOD_5",
+					"type": "LinkedServiceReference"
+				}
+			}
+		],
+		"annotations": [],
+		"lastPublishTime": "2023-04-19T14:01:08Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

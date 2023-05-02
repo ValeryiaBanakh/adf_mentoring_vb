@@ -1,0 +1,16 @@
+{
+	"name": "sp_linked_ser",
+	"type": "Microsoft.DataFactory/factories/linkedservices",
+	"properties": {
+		"annotations": [],
+		"type": "SqlServer",
+		"typeProperties": {
+			"connectionString": "integrated security=False;data source=EPPLWROW0002;initial catalog=CinemaTickets;user id=azure_vb1",
+			"encryptedCredential": "eyJDcmVkZW50aWFsSWQiOiI3NGMzYzgwYi1hZDZlLTRmZTQtYjQyMS0wZjMxNjI1OWM5NDUiLCJWZXJzaW9uIjoiMi4wIiwiQ2xhc3NUeXBlIjoiTWljcm9zb2Z0LkRhdGFQcm94eS5Db3JlLkludGVyU2VydmljZURhdGFDb250cmFjdC5DcmVkZW50aWFsU1UwNkNZMTQifQ=="
+		},
+		"connectVia": {
+			"referenceName": "IntegrationRuntimeSQLDB",
+			"type": "IntegrationRuntimeReference"
+		}
+	}
+}
