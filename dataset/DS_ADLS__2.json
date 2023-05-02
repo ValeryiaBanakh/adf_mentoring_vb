@@ -1,0 +1,30 @@
+{
+	"name": "DS_ADLS__2",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "AzureDataLakeStoragenew",
+			"type": "LinkedServiceReference"
+		},
+		"parameters": {
+			"TargetFilename": {
+				"type": "array"
+			}
+		},
+		"annotations": [],
+		"type": "DelimitedText",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"folderPath": "metadata-driven",
+				"fileSystem": "raw"
+			},
+			"columnDelimiter": ",",
+			"rowDelimiter": "\n",
+			"escapeChar": "\"",
+			"firstRowAsHeader": true,
+			"quoteChar": "\""
+		},
+		"schema": []
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

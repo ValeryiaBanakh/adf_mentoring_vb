@@ -1,0 +1,64 @@
+{
+	"name": "tControlMetadata",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "LS_ASQL_MOD_5",
+			"type": "LinkedServiceReference"
+		},
+		"parameters": {
+			"SourcePath": {
+				"type": "array"
+			}
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [
+			{
+				"name": "ID",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "SourcePath",
+				"type": "nvarchar"
+			},
+			{
+				"name": "ColumnDelimiter",
+				"type": "char"
+			},
+			{
+				"name": "Encoding",
+				"type": "nvarchar"
+			},
+			{
+				"name": "EscapeCharacter",
+				"type": "char"
+			},
+			{
+				"name": "QuoteCharacter",
+				"type": "char"
+			},
+			{
+				"name": "DestinationSchema",
+				"type": "nvarchar"
+			},
+			{
+				"name": "DestinationTable",
+				"type": "nvarchar"
+			},
+			{
+				"name": "DIUValue",
+				"type": "nvarchar"
+			},
+			{
+				"name": "Mapping",
+				"type": "nvarchar"
+			}
+		],
+		"typeProperties": {
+			"schema": "etl",
+			"table": "tControlMetadata"
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}
