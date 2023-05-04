@@ -1,0 +1,10 @@
+{
+	"enviroment": {
+		"type": "string",
+		"value": "https://mentoring-key-vault-vb.vault.azure.net/secrets/module11adf/805a410fb52543a389533ed578af05f1?api-version=7.0"
+	},
+	"logicapps": {
+		"type": "string",
+		"value": "https://prod-23.francecentral.logic.azure.com:443/workflows/3951e7c2bfb74e468bdd9ee0d4151c54/triggers/manual/paths/invoke?api-version=2016-10-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=QPKYoHR6Dr1HUcfqc9IwbZtYr4OapHDO0z_d9MEsms0"
+	}
+}

@@ -1,0 +1,81 @@
+{
+	"$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"value": "mentoring-adf-vb"
+		},
+		"AzureDataLakeStorage1_accountKey": {
+			"value": ""
+		},
+		"AzureDataLakeStorage2_accountKey": {
+			"value": ""
+		},
+		"AzureDataLakeStorage_mod_7_accountKey": {
+			"value": ""
+		},
+		"AzureDataLakeStoragemod7_accountKey": {
+			"value": ""
+		},
+		"AzureSqlDatabase1_mod_7_connectionString": {
+			"value": ""
+		},
+		"AzureSqlDatabaseLinkedService_connectionString": {
+			"value": ""
+		},
+		"AzureSqlDatabase_12_connectionString": {
+			"value": ""
+		},
+		"AzureSqlDatabase_mod_6_connectionString": {
+			"value": ""
+		},
+		"AzureStorageLinkedService_connectionString": {
+			"value": ""
+		},
+		"LS_ASQL_MOD_5_connectionString": {
+			"value": "Integrated Security=False;Encrypt=True;Connection Timeout=30;Data Source=azure-mentoring-vb.database.windows.net;Initial Catalog=movies"
+		},
+		"SqlServerMod6_connectionString": {
+			"value": ""
+		},
+		"linkedServicesp_connectionString": {
+			"value": ""
+		},
+		"sp_linked_ser_connectionString": {
+			"value": ""
+		},
+		"AzureBlobStorage_Australia_sasUri": {
+			"value": ""
+		},
+		"AzureBlobStorage_mod_7_sasUri": {
+			"value": ""
+		},
+		"AzureBlobStoragenew_sasUri": {
+			"value": ""
+		},
+		"AzureDataLakeStorage1_properties_typeProperties_url": {
+			"value": "https://azurementoringdatalakevb.dfs.core.windows.net/"
+		},
+		"AzureDataLakeStorage2_properties_typeProperties_url": {
+			"value": "https://azurementoringdatalakevb.dfs.core.windows.net/"
+		},
+		"AzureDataLakeStorage_mod_7_properties_typeProperties_url": {
+			"value": "https://azurementoringdatalakevb.dfs.core.windows.net/"
+		},
+		"AzureDataLakeStoragemod7_properties_typeProperties_url": {
+			"value": "https://azurementoringdatalakevb.dfs.core.windows.net/"
+		},
+		"AzureDataLakeStoragenew_properties_typeProperties_url": {
+			"value": "https://azurementoringdatalakevb.dfs.core.windows.net"
+		},
+		"mentoringkeyvaultvb_properties_typeProperties_baseUrl": {
+			"value": "https://mentoring-key-vault-vb.vault.azure.net/"
+		},
+		"containerUri": {
+			"value": ""
+		},
+		"containerSasToken": {
+			"value": ""
+		}
+	}
+}
