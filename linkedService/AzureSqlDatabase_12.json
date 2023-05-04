@@ -1,0 +1,12 @@
+{
+	"name": "AzureSqlDatabase_12",
+	"type": "Microsoft.DataFactory/factories/linkedservices",
+	"properties": {
+		"annotations": [],
+		"type": "AzureSqlDatabase",
+		"typeProperties": {
+			"connectionString": "integrated security=False;encrypt=True;connection timeout=30;data source=azure-mentoring-vb.database.windows.net;initial catalog=movies;user id=vbanakh",
+			"encryptedCredential": "ew0KICAiVmVyc2lvbiI6ICIyMDE3LTExLTMwIiwNCiAgIlByb3RlY3Rpb25Nb2RlIjogIktleSIsDQogICJTZWNyZXRDb250ZW50VHlwZSI6ICJQbGFpbnRleHQiLA0KICAiQ3JlZGVudGlhbElkIjogIkRBVEFGQUNUT1JZQDRBNkY3OTU3LTgwRjktNDVCOS05OEZGLTAzOUQ1Q0FCN0I0MV9jZTZiNTdlYy00ZjM4LTRjM2UtODNjMi03YmE2ZjY3ODdjM2MiDQp9"
+		}
+	}
+}
