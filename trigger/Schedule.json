@@ -9,6 +9,12 @@
 					"referenceName": "PL_INCR_LOAD_MOD_6",
 					"type": "PipelineReference"
 				}
+			},
+			{
+				"pipelineReference": {
+					"referenceName": "PL_tControlMetadata_MASTER_copy1",
+					"type": "PipelineReference"
+				}
 			}
 		],
 		"type": "ScheduleTrigger",
